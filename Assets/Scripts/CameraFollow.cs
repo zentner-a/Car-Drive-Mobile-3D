@@ -15,9 +15,7 @@ public class CameraFollow : MonoBehaviour
 	private void LateUpdate()
 	{
 		if (target == null)
-		{
 			return;
-		}
 
 		Vector3 offset = baseOffset;
 		offset.z += extraDistance;
@@ -26,6 +24,7 @@ public class CameraFollow : MonoBehaviour
 		Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed * Time.deltaTime);
 		transform.position = smoothedPosition;
 
-		transform.LookAt(target);
+		Quaternion desiredRotation = Quaternion.LookRotation(target.position - transform.position);
+		transform.rotation = Quaternion.Slerp(transform.rotation, desiredRotation, smoothSpeed * Time.deltaTime);
 	}
 }
