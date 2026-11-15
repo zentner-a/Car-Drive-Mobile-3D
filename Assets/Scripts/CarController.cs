@@ -14,8 +14,7 @@ public class CarController : MonoBehaviour
 	private int currentLaneIndex;
 	private float targetX;
 
-	private System.Action onSwipeLeft;
-	private System.Action onSwipeRight;
+	private SwipeInput subscribedInput;
 
 	private void Awake()
 	{
@@ -26,40 +25,42 @@ public class CarController : MonoBehaviour
 		Vector3 pos = transform.position;
 		pos.x = targetX;
 		transform.position = pos;
-
-		Debug.Log($"[CarController] Awake. Start lane: {currentLaneIndex}, X: {targetX}");
 	}
 
 	private void OnEnable()
 	{
-		if (SwipeInput.Instance != null)
-		{
-			onSwipeLeft = () => ChangeLane(-1);
-			onSwipeRight = () => ChangeLane(1);
-			SwipeInput.Instance.OnSwipeLeft += onSwipeLeft;
-			SwipeInput.Instance.OnSwipeRight += onSwipeRight;
-			Debug.Log("[CarController] Subscribed to SwipeInput events");
-		}
-		else
-		{
-			Debug.LogWarning("[CarController] SwipeInput.Instance is NULL! Place SwipeInput on an active GameObject in the scene.");
-		}
+		ConnectInput();
 	}
 
 	private void OnDisable()
 	{
-		if (SwipeInput.Instance != null)
+		if (subscribedInput != null)
 		{
-			SwipeInput.Instance.OnSwipeLeft -= onSwipeLeft;
-			SwipeInput.Instance.OnSwipeRight -= onSwipeRight;
+			subscribedInput.OnSwipeLeft -= SwipeLeft;
+			subscribedInput.OnSwipeRight -= SwipeRight;
 		}
+		subscribedInput = null;
 	}
 
 	private void Update()
 	{
+		if (subscribedInput == null)
+			ConnectInput();
 		MoveForward();
 		UpdateLanePosition();
 	}
+
+	private void ConnectInput()
+	{
+		if (subscribedInput != null || SwipeInput.Instance == null)
+			return;
+		subscribedInput = SwipeInput.Instance;
+		subscribedInput.OnSwipeLeft += SwipeLeft;
+		subscribedInput.OnSwipeRight += SwipeRight;
+	}
+
+	private void SwipeLeft() => ChangeLane(-1);
+	private void SwipeRight() => ChangeLane(1);
 
 	private void MoveForward()
 	{
@@ -91,8 +92,6 @@ public class CarController : MonoBehaviour
 			currentLaneIndex = newLane;
 			targetX = GetLaneX(currentLaneIndex);
 			targetX = Mathf.Clamp(targetX, -maxSideOffset, maxSideOffset);
-
-			Debug.Log($"[CarController] ChangeLane to {currentLaneIndex}, targetX: {targetX}");
 		}
 	}
 

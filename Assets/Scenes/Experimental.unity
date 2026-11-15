@@ -546,12 +546,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f48734a3496ead4a95963bfee7a47eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoadGenerator
-  roadSegmentPrefab: {fileID: 919132149155446097, guid: 10b4a1702062de31cafb3fc27e0a4dfd, type: 3}
+  roadSegmentPrefab: {fileID: 8991674250681864121, guid: 3d4163f74c170414d84d80f9ea6e1961, type: 3}
   car: {fileID: 1431638641}
   segmentLength: 20
   segmentsAhead: 7
   removeBehindDistance: 20
-  segmentRotation: {x: 0, y: 90, z: 0}
 --- !u!4 &1169029727
 Transform:
   m_ObjectHideFlags: 0

@@ -42,39 +42,34 @@ public class SwipeInput : MonoBehaviour
 				isSwiping = false;
 			}
 		}
-		else if (Application.isEditor && Mouse.current != null)
+		else if (Application.isEditor)
 		{
-			if (Mouse.current.leftButton.wasPressedThisFrame)
+			if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
 			{
 				isSwiping = true;
 				startPos = Mouse.current.position.ReadValue();
 			}
-			else if (isSwiping && Mouse.current.leftButton.wasReleasedThisFrame)
+			else if (Mouse.current != null && isSwiping && Mouse.current.leftButton.wasReleasedThisFrame)
 			{
 				HandleSwipe(Mouse.current.position.ReadValue() - startPos);
 				isSwiping = false;
 			}
 
-			if (Keyboard.current.leftArrowKey.wasPressedThisFrame || Keyboard.current.aKey.wasPressedThisFrame)
+			if (Keyboard.current != null && (Keyboard.current.leftArrowKey.wasPressedThisFrame || Keyboard.current.aKey.wasPressedThisFrame))
 			{
 				OnSwipeLeft?.Invoke();
-				Debug.Log("[SwipeInput] Keyboard: Left");
 			}
-			if (Keyboard.current.rightArrowKey.wasPressedThisFrame || Keyboard.current.dKey.wasPressedThisFrame)
+			if (Keyboard.current != null && (Keyboard.current.rightArrowKey.wasPressedThisFrame || Keyboard.current.dKey.wasPressedThisFrame))
 			{
 				OnSwipeRight?.Invoke();
-				Debug.Log("[SwipeInput] Keyboard: Right");
 			}
 		}
 	}
 
 	private void HandleSwipe(Vector2 delta)
 	{
-		Debug.Log($"[SwipeInput] Swipe delta: {delta}, magnitude: {delta.magnitude}");
-
 		if (delta.magnitude < minSwipeDistance)
 		{
-			Debug.Log("[SwipeInput] Swipe too short, ignored");
 			return;
 		}
 
@@ -82,18 +77,12 @@ public class SwipeInput : MonoBehaviour
 		{
 			if (delta.x > 0f)
 			{
-				Debug.Log("[SwipeInput] Swipe Right");
 				OnSwipeRight?.Invoke();
 			}
 			else
 			{
-				Debug.Log("[SwipeInput] Swipe Left");
 				OnSwipeLeft?.Invoke();
 			}
-		}
-		else
-		{
-			Debug.Log("[SwipeInput] Vertical swipe, ignored");
 		}
 	}
 }
