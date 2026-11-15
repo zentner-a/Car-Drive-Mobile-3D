@@ -136,3 +136,10 @@ crashlytics-build.properties
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# файлы для хранения истории задачи (у каждого разработчика свои - не надо засорять репу)
+/.agents/*
+# Отслеживаем только Karpathy skill, остальные файлы .agents игнорируются
+!/.agents/skills/
+/.agents/skills/*
+!/.agents/skills/karpathy-guidelines/
