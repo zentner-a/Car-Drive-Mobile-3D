@@ -232,7 +232,7 @@ MonoBehaviour:
   - {fileID: 1372587365}
   - {fileID: 215404058}
   sunLight: {fileID: 500000101}
-  nightAngleThreshold: 0
+  nightAngleThreshold: 50
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -543,7 +543,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DayNightCycle
   sunTransform: {fileID: 500000102}
   sunLight: {fileID: 500000101}
-  cycleDuration: 120
+  cycleDuration: 10
   noonColor: {r: 1, g: 1, b: 1, a: 1}
   sunriseSunsetColor: {r: 1, g: 0.55, b: 0.3, a: 1}
   nightColor: {r: 0.15, g: 0.2, b: 0.35, a: 1}
