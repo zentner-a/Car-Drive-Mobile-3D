@@ -12,8 +12,8 @@ public class RoadGenerator : MonoBehaviour
 	[SerializeField] private int segmentsAhead = 10;
 	[SerializeField] private float removeBehindDistance = 20f;
 
-	private readonly Queue<GameObject> activeSegments = new Queue<GameObject>();
-	private float nextSpawnZ;
+	private readonly List<GameObject> activeSegments = new List<GameObject>();
+	private CarController carController;
 
 	private void Awake()
 	{
@@ -25,9 +25,17 @@ public class RoadGenerator : MonoBehaviour
 			return;
 		}
 
-		nextSpawnZ = car.position.z;
+		carController = car.GetComponent<CarController>();
+
+		// Машина стоит на месте, поэтому все сегменты спавним относительно её фиксированной позиции.
+		// Мировые координаты не улетают в бесконечность даже на очень поздних стадиях.
+		float carZ = car.position.z;
+		float z = carZ + segmentLength;
 		for (int i = 0; i < segmentsAhead; i++)
-			SpawnSegment();
+		{
+			SpawnSegment(z);
+			z += segmentLength;
+		}
 	}
 
 	private void Update()
@@ -36,39 +44,70 @@ public class RoadGenerator : MonoBehaviour
 			return;
 
 		float carZ = car.position.z;
-		while (nextSpawnZ - segmentLength < carZ + segmentLength * segmentsAhead)
-			SpawnSegment();
+		float scrollSpeed = carController != null ? carController.ForwardSpeed : 0f;
+		float moveDelta = scrollSpeed * Time.deltaTime;
+
+		// Двигаем всю дорогу навстречу машине (назад по Z). Сама машина стоит неподвижно.
+		for (int i = activeSegments.Count - 1; i >= 0; i--)
+		{
+			var segment = activeSegments[i];
+			if (segment == null)
+			{
+				activeSegments.RemoveAt(i);
+				continue;
+			}
+			Vector3 pos = segment.transform.position;
+			pos.z -= moveDelta;
+			segment.transform.position = pos;
+		}
+
+		// Поддерживаем segmentsAhead сегментов впереди машины.
+		float targetZ = carZ + segmentLength * segmentsAhead;
+		float furthest = activeSegments.Count > 0 ? GetFurthestSegmentZ() : carZ;
+		while (furthest < targetZ)
+		{
+			SpawnSegment(furthest + segmentLength);
+			furthest += segmentLength;
+		}
 
 		RemoveOldSegment(carZ);
 	}
 
-	private void SpawnSegment()
+	private float GetFurthestSegmentZ()
 	{
-		// Центр дороги всегда в мировом x = 0. Спавним в мировых координатах и крепим к RoadGenerator,
-		// не меняя мировую позицию — тогда смещение самого объекта-генератора на сцене
-		// не сдвигает всю дорогу в сторону.
-		Vector3 spawnPos = new Vector3(0f, 0f, nextSpawnZ);
-		GameObject segment = Instantiate(roadSegmentPrefab, spawnPos, Quaternion.identity);
+		float furthest = float.MinValue;
+		foreach (var segment in activeSegments)
+		{
+			if (segment != null && segment.transform.position.z > furthest)
+				furthest = segment.transform.position.z;
+		}
+		return furthest;
+	}
+
+	private void SpawnSegment(float z)
+	{
+		Vector3 position = new Vector3(0f, 0f, z);
+		GameObject segment = Instantiate(roadSegmentPrefab, position, Quaternion.identity);
 		segment.transform.SetParent(transform, worldPositionStays: true);
-		segment.name = "RoadSegment_" + nextSpawnZ;
-		activeSegments.Enqueue(segment);
-		nextSpawnZ += segmentLength;
+		segment.name = "RoadSegment_" + z;
+		activeSegments.Add(segment);
 	}
 
 	private void RemoveOldSegment(float carZ)
 	{
-		while (activeSegments.Count > 0)
+		for (int i = activeSegments.Count - 1; i >= 0; i--)
 		{
-			GameObject oldest = activeSegments.Peek();
-			if (oldest == null)
+			var segment = activeSegments[i];
+			if (segment == null)
 			{
-				activeSegments.Dequeue();
+				activeSegments.RemoveAt(i);
 				continue;
 			}
-			if (oldest.transform.position.z >= carZ - removeBehindDistance)
-				break;
-			activeSegments.Dequeue();
-			Destroy(oldest);
+			if (segment.transform.position.z < carZ - removeBehindDistance)
+			{
+				activeSegments.RemoveAt(i);
+				Destroy(segment);
+			}
 		}
 	}
 }

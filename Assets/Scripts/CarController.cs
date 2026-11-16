@@ -72,7 +72,6 @@ public class CarController : MonoBehaviour
 	{
 		if (subscribedInput == null)
 			ConnectInput();
-		MoveForward();
 		UpdateLanePosition();
 	}
 
@@ -87,11 +86,6 @@ public class CarController : MonoBehaviour
 
 	private void SwipeLeft() => ChangeLane(-1);
 	private void SwipeRight() => ChangeLane(1);
-
-	private void MoveForward()
-	{
-		transform.position += Vector3.forward * forwardSpeed * Time.deltaTime;
-	}
 
 	private void UpdateLanePosition()
 	{
