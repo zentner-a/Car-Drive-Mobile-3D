@@ -44,8 +44,12 @@ public class RoadGenerator : MonoBehaviour
 
 	private void SpawnSegment()
 	{
-		Vector3 position = new Vector3(0f, 0f, nextSpawnZ);
-		GameObject segment = Instantiate(roadSegmentPrefab, position, Quaternion.identity, transform);
+		// Центр дороги всегда в мировом x = 0. Спавним в мировых координатах и крепим к RoadGenerator,
+		// не меняя мировую позицию — тогда смещение самого объекта-генератора на сцене
+		// не сдвигает всю дорогу в сторону.
+		Vector3 spawnPos = new Vector3(0f, 0f, nextSpawnZ);
+		GameObject segment = Instantiate(roadSegmentPrefab, spawnPos, Quaternion.identity);
+		segment.transform.SetParent(transform, worldPositionStays: true);
 		segment.name = "RoadSegment_" + nextSpawnZ;
 		activeSegments.Enqueue(segment);
 		nextSpawnZ += segmentLength;

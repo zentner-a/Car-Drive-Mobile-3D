@@ -11,6 +11,10 @@ public class CarController : MonoBehaviour
 	[SerializeField] private int laneCount = 3;
 	[SerializeField] private float laneWidth = 3.5f;
 
+	[Header("Visual")]
+	[SerializeField] [Tooltip("Смещение визуала машины относительно центра полосы, если pivot модели в FBX не по центру.")] private float visualCenterOffset = 0f;
+	[SerializeField] [Tooltip("Автоматически сдвигать машину при старте так, чтобы центр её визуала (MeshRenderer) совпадал с целевой полосой.")] private bool autoCenterToVisual = true;
+
 	private int currentLaneIndex;
 	private float targetX;
 
@@ -23,7 +27,29 @@ public class CarController : MonoBehaviour
 		targetX = Mathf.Clamp(targetX, -maxSideOffset, maxSideOffset);
 
 		Vector3 pos = transform.position;
-		pos.x = targetX;
+		pos.x = targetX + visualCenterOffset;
+		transform.position = pos;
+
+		if (autoCenterToVisual)
+			CenterToVisual();
+	}
+
+	private void CenterToVisual()
+	{
+		var renderers = GetComponentsInChildren<MeshRenderer>();
+		if (renderers.Length == 0)
+			return;
+
+		Bounds bounds = renderers[0].bounds;
+		for (int i = 1; i < renderers.Length; i++)
+			bounds.Encapsulate(renderers[i].bounds);
+
+		float correctionX = targetX + visualCenterOffset - bounds.center.x;
+		if (Mathf.Approximately(correctionX, 0f))
+			return;
+
+		Vector3 pos = transform.position;
+		pos.x += correctionX;
 		transform.position = pos;
 	}
 
