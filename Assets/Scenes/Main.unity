@@ -216,6 +216,8 @@ MonoBehaviour:
   laneWidth: 2.4
   visualCenterOffset: 0
   autoCenterToVisual: 1
+  crashSpinSpeed: 360
+  randomSpinDirection: 1
 --- !u!114 &228328442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -617,13 +619,13 @@ MonoBehaviour:
   maxTrafficCars: 5
   spawnZ: 50
   removeZ: -40
-  minSpeed: 6
-  maxSpeed: 12
+  minSpeed: 5
+  maxSpeed: 13
   spawnInterval: 2.5
   laneX:
-  - -3.5
+  - -2.4
   - 0
-  - 3.5
+  - 2.4
   laneYRotation:
   - -90
   - -90
@@ -672,10 +674,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3d4e5f6a7b890123456789012345678, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameOverCanvas: {fileID: 0}
-  gameOverText: {fileID: 0}
-  restartButton: {fileID: 0}
-  slowMotionTimeScale: 0.2
+  slowMotionTimeScale: 0.1
+  slowMotionDuration: 0.1
+  fadeDuration: 0.5
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -825,8 +826,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoadGenerator
   roadSegmentPrefab: {fileID: 8991674250681864121, guid: 3d4163f74c170414d84d80f9ea6e1961, type: 3}
   car: {fileID: 228328440}
-  segmentLength: 20
-  segmentsAhead: 10
+  segmentLength: 19
+  segmentsAhead: 9
   removeBehindDistance: 20
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
