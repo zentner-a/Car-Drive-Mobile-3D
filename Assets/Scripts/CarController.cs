@@ -26,6 +26,24 @@ public class CarController : MonoBehaviour
 		targetX = GetLaneX(currentLaneIndex);
 		targetX = Mathf.Clamp(targetX, -maxSideOffset, maxSideOffset);
 
+		gameObject.tag = "Player";
+
+		var collider = GetComponent<BoxCollider>();
+		if (collider == null)
+		{
+			collider = gameObject.AddComponent<BoxCollider>();
+			collider.isTrigger = true;
+			collider.size = new Vector3(1f, 1f, 2f);
+		}
+
+		var rb = GetComponent<Rigidbody>();
+		if (rb == null)
+		{
+			rb = gameObject.AddComponent<Rigidbody>();
+			rb.isKinematic = true;
+			rb.useGravity = false;
+		}
+
 		Vector3 pos = transform.position;
 		pos.x = targetX + visualCenterOffset;
 		transform.position = pos;
@@ -117,4 +135,14 @@ public class CarController : MonoBehaviour
 
 	public int CurrentLane => currentLaneIndex;
 	public float ForwardSpeed => forwardSpeed;
+
+	public void ResetPosition()
+	{
+		currentLaneIndex = laneCount / 2;
+		targetX = GetLaneX(currentLaneIndex);
+		targetX = Mathf.Clamp(targetX, -maxSideOffset, maxSideOffset);
+		Vector3 pos = transform.position;
+		pos.x = targetX + visualCenterOffset;
+		transform.position = pos;
+	}
 }
