@@ -22,7 +22,7 @@ public static class AndroidPreview
 		{
 			int mobile = Array.IndexOf(QualitySettings.names, "Mobile");
 			if (mobile < 0)
-				Debug.LogError("Android preview requires the Mobile quality level.");
+				Debug.LogWarning("Android preview requires the Mobile quality level (not found, skipping).");
 			else
 				QualitySettings.SetQualityLevel(mobile, true);
 		}

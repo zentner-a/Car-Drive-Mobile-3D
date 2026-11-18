@@ -7,14 +7,18 @@ public class TrafficCar : MonoBehaviour
 
 	private void OnEnable()
 	{
-		gameObject.tag = "Traffic";
+		// Назначаем тег Traffic, если он существует в проекте; иначе пропускаем,
+		// чтобы не падать с ошибкой "Tag is not defined".
+		if (IsTagDefined("Traffic"))
+			gameObject.tag = "Traffic";
 
 		var collider = GetComponent<BoxCollider>();
 		if (collider == null)
 		{
 			collider = gameObject.AddComponent<BoxCollider>();
 			collider.isTrigger = true;
-			collider.size = new Vector3(1.5f, 1.5f, 3f);
+			collider.size = new Vector3(1.2f, 1.4f, 2.5f);
+			collider.center = new Vector3(0f, 0.7f, 0f);
 		}
 
 		var rb = GetComponent<Rigidbody>();
@@ -34,9 +38,36 @@ public class TrafficCar : MonoBehaviour
 
 	private void OnTriggerEnter(Collider other)
 	{
-		if (other.CompareTag("Player"))
+		if (!other.CompareTag("Player"))
+			return;
+
+		// Авария только если мы на той же полосе, что и игрок
+		var playerController = other.GetComponent<CarController>();
+		if (playerController != null && playerController.CurrentLane != laneIndex)
+			return;
+
+		GameOverManager.Instance?.TriggerGameOver();
+	}
+
+	private static bool IsTagDefined(string tagName)
+	{
+		// Unity не предоставляет публичного API для проверки существования тега,
+		// поэтому пробуем присвоить временный тег в try-catch.
+		var go = new GameObject();
+		bool result = false;
+		try
 		{
-			GameOverManager.Instance?.TriggerGameOver();
+			go.tag = tagName;
+			result = true;
 		}
+		catch (UnityEngine.UnityException)
+		{
+			result = false;
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(go);
+		}
+		return result;
 	}
 }

@@ -26,14 +26,18 @@ public class CarController : MonoBehaviour
 		targetX = GetLaneX(currentLaneIndex);
 		targetX = Mathf.Clamp(targetX, -maxSideOffset, maxSideOffset);
 
-		gameObject.tag = "Player";
+		// Назначаем тег Player, если он существует в проекте; иначе пропускаем,
+		// чтобы не падать с ошибкой "Tag is not defined".
+		if (IsTagDefined("Player"))
+			gameObject.tag = "Player";
 
 		var collider = GetComponent<BoxCollider>();
 		if (collider == null)
 		{
 			collider = gameObject.AddComponent<BoxCollider>();
 			collider.isTrigger = true;
-			collider.size = new Vector3(1f, 1f, 2f);
+			collider.size = new Vector3(0.9f, 1f, 1.8f);
+			collider.center = new Vector3(0f, 0.8f, 0f);
 		}
 
 		var rb = GetComponent<Rigidbody>();
@@ -144,5 +148,25 @@ public class CarController : MonoBehaviour
 		Vector3 pos = transform.position;
 		pos.x = targetX + visualCenterOffset;
 		transform.position = pos;
+	}
+
+	private static bool IsTagDefined(string tagName)
+	{
+		var go = new GameObject();
+		bool result = false;
+		try
+		{
+			go.tag = tagName;
+			result = true;
+		}
+		catch (UnityEngine.UnityException)
+		{
+			result = false;
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(go);
+		}
+		return result;
 	}
 }
