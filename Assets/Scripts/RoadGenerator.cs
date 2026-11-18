@@ -30,6 +30,11 @@ public class RoadGenerator : MonoBehaviour
 		// Машина стоит на месте, поэтому все сегменты спавним относительно её фиксированной позиции.
 		// Мировые координаты не улетают в бесконечность даже на очень поздних стадиях.
 		float carZ = car.position.z;
+		
+		// Сначала спавним сегмент ПОД машиной (чтобы не проваливалась)
+		SpawnSegment(carZ);
+		
+		// Затем segmentsAhead сегментов впереди
 		float z = carZ + segmentLength;
 		for (int i = 0; i < segmentsAhead; i++)
 		{

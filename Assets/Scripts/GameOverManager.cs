@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.SceneManagement;
 
 public class GameOverManager : MonoBehaviour
 {
@@ -60,6 +61,9 @@ public class GameOverManager : MonoBehaviour
 
 	private IEnumerator GameOverRoutine()
 	{
+		// Тряска камеры сразу при аварии
+		CameraShake.Instance?.Shake(0.5f, 0.4f, 30f);
+
 		yield return new WaitForSecondsRealtime(slowMotionDuration);
 
 		Time.timeScale = 0f;
@@ -93,17 +97,19 @@ public class GameOverManager : MonoBehaviour
 			fadeRoutine = null;
 		}
 
+		// Удаляем старый канвас (он с DontDestroyOnLoad, иначе останется после перезагрузки)
 		if (canvas != null)
-			canvas.gameObject.SetActive(false);
-		if (fadeGroup != null)
-			fadeGroup.alpha = 0f;
+			Destroy(canvas.gameObject);
+		canvas = null;
+		fadeGroup = null;
+		gameOverText = null;
+		restartButton = null;
 
-		var player = FindObjectOfType<CarController>();
-		if (player != null)
-			player.ResetPosition();
+		// Сбрасываем синглтон, чтобы новый GameOverManager в загруженной сцене стал Instance
+		Instance = null;
 
-		foreach (var car in FindObjectsOfType<TrafficCar>())
-			Destroy(car.gameObject);
+		// Полная перезагрузка текущей сцены
+		SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 	}
 
 	private void CreateUI()
